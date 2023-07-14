@@ -1,0 +1,18 @@
+Programme qui prend un input
+
+apres analyse du code, il y a 4 comparaisons de strings:
+ - address 0x080485cf compares our input with the string "auth "
+ - address 0x08048656 compares our input with the string "reset"
+ - address 0x0804868c compares our input with the string "service"
+ - address 0x080486c9 compares our input with the string "login"
+
+auth et service se suivent dans la memoire
+
+auth malloc une string
+service strdup auth + 7, il cree donc un nouveau pointer (+8 bytes) et strdup rajoute le '\0' donc un total de 16 bytes, c'est pourquoi on verra "(addresse de auth), (addresse de service + 16 bytes)" apres avoir appele service
+
+login verifie que auth + 32 bytes != 0, on refait un appel a service et auth+32 sera alloue
+
+on refait login et on est dans system
+
+cat /home/user/level9/.pass
